@@ -1,5 +1,5 @@
 # ansible-docker-postgresql
-Ansible playbook для разных серверов
+Ansible playbook для разных серверов. Запустить плейбук hw3.yml
 
 Что нужно сделать
 Создать 3 ВМ в Я.Облаке (минимальная конфигурация: 2vCPU, 2GB RAM, 20 GB HDD): vm1 и vm2 (Ubuntu 20.04), vm3 (Centos 8).
