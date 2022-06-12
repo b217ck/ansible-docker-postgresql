@@ -1,0 +1,5 @@
+- include: docker2.yml
+  when: "'app' in {{group_names}}"
+
+- include: postgre.yml
+  when: "'databasse' in {{group_names}}"
