@@ -1,0 +1,85 @@
+---
+- hosts: database
+  become: yes
+ 
+  vars_files:
+    - vars.yml
+
+  pre_tasks:
+    - name: Install packages
+      apt: 
+        pkg: 
+          - postgresql
+          - postgresql-contrib
+          - python3-pip 
+        state: present
+
+    - name: Install Python packages
+      pip:
+        name: psycopg2-binary  
+        state: present
+
+  tasks:
+
+    - name: Set PostgreSQL environment variables.
+      template:
+        src: postgres.sh.j2
+        dest: /etc/profile.d/postgres.sh
+        mode: 0644
+      notify: 
+
+    - name: Ensure PostgreSQL data directory exists.
+      file:
+        path: "{{ postgresql_data_dir }}"
+        owner: postgres
+        group: postgres
+        state: directory
+        mode: 0700
+
+    - name: Check if PostgreSQL database is initialized.
+      stat:
+        path: "{{ postgresql_data_dir }}/PG_VERSION"
+      register: pgdata_dir_version
+
+    - name: Ensure PostgreSQL database is initialized.
+      command: "{{ postgresql_bin_path }}/initdb -D {{ postgresql_data_dir }}"
+      when: not pgdata_dir_version.stat.exists
+      become: true
+      become_user: postgres
+
+    - name: "Start and enable services"
+      service:
+        name: postgresql 
+        state: started 
+        enabled: yes
+
+    - name: "Create app database"
+      postgresql_db:
+        state: present
+        name: "{{ db_name }}"
+      become: yes
+      become_user: postgres
+
+    - name: "Create db user"
+      postgresql_user:
+        state: present
+        name: "{{ db_user }}"
+        password: "{{ db_password }}"
+      become: yes
+      become_user: postgres
+
+    - name: "Grant db user access to app db"
+      postgresql_privs:
+        type: database
+        database: "{{ db_name }}"
+        roles: "{{ db_user }}"
+        grant_option: no
+        privs: all
+      become: yes
+      become_user: postgres
+
+  handlers:
+    - name: restart postgres
+      service: 
+        name: postgresql 
+        state: restarted

@@ -1,0 +1,19 @@
+---
+db_user: app1user
+db_password: app1user
+db_name: app1
+
+#- name: Define postgresql_version
+#  set_fact:
+#    postgresql_version: " {{ __postgresql_version }}"
+#  when: postgresql_versiob is not defined
+#
+#- name: Define postgresql_data_dir
+#  set_fact:
+#    postgresql_data_dir: "{{ __postgresql_data_dir }}"
+#  when: postgresql_data_dir is not defined
+
+postgresql_version: "12"
+__postgresql_version: "12"
+postgresql_data_dir: "/var/lib/postgresql/{{ __postgresql_version }}/main"
+postgresql_bin_path: "/usr/lib/postgresql/{{ __postgresql_version }}/bin"
